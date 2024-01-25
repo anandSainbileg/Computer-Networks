@@ -1,0 +1,188 @@
+# Author Anand Sainbileg 20327050
+
+version: '3.8'
+
+services:
+
+  traffic:
+    image: traffic-capture-image
+    container_name: traffic-capture
+    build: ./traffic
+    networks:
+      - endpoint1
+      - endpoint2
+      - endpoint3
+      - endpoint4
+      - routerNet
+      - routerNet2
+      - noEndpoint
+    privileged: true
+
+  client1:
+    image: client-image1
+    container_name: client-1
+    build: 
+      context: ./client
+      dockerfile: Dockerfile
+    environment:
+      - SOURCE_ID=${SOURCE_ID1}
+      - DEST_ID=${DEST_ID1}
+    depends_on: 
+      - router1
+    networks:
+      - endpoint1
+
+  client2:
+    image: client-image2
+    container_name: client-2
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+    environment:
+      - SOURCE_ID=${SOURCE_ID2}
+      - DEST_ID=${DEST_ID2}
+    depends_on: 
+      - router2
+    networks:
+      - endpoint2
+
+  server1:
+    image: server-image1
+    container_name: server-1
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    environment:
+      - SOURCE_ID=${SOURCE_ID3}
+    networks:
+      - endpoint3
+
+  server2:
+    image: server-image2
+    container_name: server-2
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    environment:
+      - SOURCE_ID=${SOURCE_ID4}
+    networks:
+      - endpoint4
+
+  router1:
+    image: router-image1
+    container_name: router-1
+    build:
+      context: ./router
+      dockerfile: Dockerfile
+    depends_on: 
+      - router3
+    networks:
+      - endpoint1
+      - routerNet
+
+  router2:
+    image: router-image2
+    container_name: router-2
+    build:
+      context: ./router
+      dockerfile: Dockerfile
+    depends_on: 
+      - router3
+    networks:
+      - endpoint2
+      - routerNet
+  
+  router3:
+    image: router-image3
+    container_name: router-3
+    build:
+      context: ./router
+      dockerfile: Dockerfile
+    depends_on: 
+      - router4
+      - router5
+    networks:
+      - routerNet
+      - routerNet2
+  
+  router4:
+    image: router-image4
+    container_name: router-4
+    build:
+      context: ./router
+      dockerfile: Dockerfile
+    depends_on: 
+      - server1
+      - server2
+    networks:
+      - routerNet2
+      - endpoint3
+
+  router5:
+    image: router-image5
+    container_name: router-5
+    build:
+      context: ./router
+      dockerfile: Dockerfile
+    depends_on: 
+      - server1
+      - server2
+    networks:
+      - routerNet2
+      - endpoint4
+
+  router6:
+    image: router-image6
+    container_name: router-6
+    build:
+      context: ./router
+      dockerfile: Dockerfile
+    depends_on: 
+      - router3
+    networks:
+      - routerNet
+      - noEndpoint
+
+networks:
+  endpoint1:
+    ipam:
+      driver: default
+      config:
+        - subnet: 124.10.0.0/16
+
+  routerNet:
+    ipam:
+      driver: default
+      config:
+        - subnet: 124.11.0.0/16
+
+  routerNet2:
+    ipam:
+      driver: default
+      config:
+        - subnet: 124.12.0.0/16
+
+  endpoint2:
+    ipam:
+      driver: default
+      config:
+        - subnet: 124.13.0.0/16
+
+  endpoint3:
+    ipam:
+      driver: default
+      config:
+        - subnet: 124.14.0.0/16
+
+  endpoint4:
+    ipam:
+      driver: default
+      config:
+        - subnet: 124.15.0.0/16
+
+  noEndpoint:
+    ipam:
+      driver: default
+      config:
+        - subnet: 124.16.0.0/16
+
